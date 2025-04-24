@@ -1,11 +1,11 @@
 const pino = require('pino');
 const { randomUUID } = require('crypto');
 
-function createLogger(context = {}) {
-  return pino({
+function createLogger({ serviceName = 'unknown', container = 'generic' }) {
+  const baseLogger = pino({
     base: {
-      service: context.serviceName || 'unknown',
-      container: context.container || 'generic',
+      service: serviceName,
+      container,
     },
     timestamp: pino.stdTimeFunctions.isoTime,
     transport: process.env.NODE_ENV === 'production' ? undefined : {
@@ -17,6 +17,44 @@ function createLogger(context = {}) {
       },
     }
   });
+
+  function logRequest({ req, status = 200, error = null, stack = null }) {
+    const requestId = getRequestId(req);
+    baseLogger.info({
+      requestId,
+      service: serviceName,
+      route: req?.url,
+      method: req?.method,
+      headers: req?.headers,
+      params: req?.params,
+      body: req?.body,
+      error: error ? error.message : null,
+      stack,
+      status
+    });
+  }
+
+  function logError({ req, error, status = 500 }) {
+    const requestId = getRequestId(req);
+    baseLogger.error({
+      requestId,
+      service: serviceName,
+      route: req?.url,
+      method: req?.method,
+      headers: req?.headers,
+      params: req?.params,
+      body: req?.body,
+      error: error.message,
+      stack: error.stack,
+      status
+    });
+  }
+
+  return {
+    logRequest,
+    logError,
+    raw: baseLogger
+  };
 }
 
 function getRequestId(req) {
