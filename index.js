@@ -1,52 +1,56 @@
 const pino = require('pino');
 const { randomUUID } = require('crypto');
 
-function createLogger({ serviceName = 'unknown', container = 'generic' }) {
+function createLogger({ serviceName = 'unknown', container = 'generic', route = 'any' }) {
   const baseLogger = pino({
     base: {
       service: serviceName,
       container,
+      route
     },
     timestamp: pino.stdTimeFunctions.isoTime,
-    transport: process.env.NODE_ENV === 'production' ? undefined : {
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
-        translateTime: true,
-        ignore: 'pid,hostname',
-      },
+    transport: {
+      target: './transport.js',
+      options: {},
     }
   });
 
-  function logRequest({ req, status = 200, error = null, stack = null }) {
+  function logRequest({ req, msg=null, status = 200, error = null, stack = null }) {
     const requestId = getRequestId(req);
     baseLogger.info({
+      timestamp: new Date().toISOString(),
       requestId,
       service: serviceName,
-      route: req?.url,
+      container: container,
+      route: route,
       method: req?.method,
       headers: req?.headers,
       params: req?.params,
       body: req?.body,
       error: error ? error.message : null,
       stack,
-      status
+      status,
+      message: msg,
+      type: "__internal"
     });
   }
 
   function logError({ req, error, status = 500 }) {
     const requestId = getRequestId(req);
     baseLogger.error({
+      timestamp: new Date().toISOString(),
       requestId,
       service: serviceName,
-      route: req?.url,
+      container: container,
+      route: route,
       method: req?.method,
       headers: req?.headers,
       params: req?.params,
       body: req?.body,
       error: error.message,
       stack: error.stack,
-      status
+      status,
+      type: "__internal"
     });
   }
 
