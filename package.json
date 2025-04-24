@@ -1,0 +1,10 @@
+{
+    "name": "colana-logger",
+    "version": "1.0.0",
+    "main": "index.js",
+    "description": "Shared logger for Colana containers using Pino",
+    "license": "MIT",
+    "dependencies": {
+      "pino": "^9.6.0"
+    }
+  }
