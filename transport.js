@@ -7,7 +7,7 @@ const PB_URL = process.env.POCKETBASE_LOGGER_URL;
 const PB_COLLECTION = process.env.PB_COLLECTION;
 
 async function loginAsAdmin() {
-    const res = await axios.post(`${baseURL}/admins/auth-with-password`, {
+    const res = await axios.post(`${PB_URL}/api/admins/auth-with-password`, {
         identity: "test@example.com",
         password: "1234567890"
     });

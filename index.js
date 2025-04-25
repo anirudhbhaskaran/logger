@@ -30,7 +30,7 @@ function createLogger({ serviceName = 'unknown', container = 'generic', route = 
       error: error ? error.message : null,
       stack,
       status,
-      message: msg,
+      msg: msg,
       type: "__internal"
     });
   }
