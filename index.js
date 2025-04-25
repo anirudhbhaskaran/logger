@@ -1,7 +1,7 @@
-const pino = require('pino');
-const { randomUUID } = require('crypto');
+import pino from 'pino';
+import { randomUUID } from 'crypto';
 
-function createLogger({ serviceName = 'unknown', container = 'generic', route = 'any' }) {
+export function createLogger({ serviceName = 'unknown', container = 'generic', route = 'any' }) {
   const baseLogger = pino({
     base: {
       service: serviceName,
@@ -61,11 +61,6 @@ function createLogger({ serviceName = 'unknown', container = 'generic', route = 
   };
 }
 
-function getRequestId(req) {
+export function getRequestId(req) {
   return req?.headers?.['x-request-id'] || randomUUID();
 }
-
-module.exports = {
-  createLogger,
-  getRequestId,
-};
